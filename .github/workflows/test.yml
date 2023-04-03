@@ -11,8 +11,6 @@ jobs:
     runs-on: ubuntu-20.04
     strategy:
       matrix:
-        operating-system: [ubuntu-20.04]
-        php-version: [8.2]
         test-filter: [
           AuthenticationTest,
           EmailVerificationTest
@@ -25,10 +23,10 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: PHP ${{ matrix.php-version }}
+      - name: Setup PHP
         uses: shivammathur/setup-php@v2
         with:
-          php-version: ${{ matrix.php-version }}
+          php-version: '8.2'
           extensions: ssh2, openssl, dom, curl, libxml, mbstring, zip
           tools: composer:v2
           coverage: pcov
@@ -43,5 +41,5 @@ jobs:
       - name: Migrate Database
         run: php artisan migrate:fresh --env=testing
 
-      - name: Run tests
+      - name: Run test - ${{ matrix.test-filter }}
         run: php artisan test --filter ${{ matrix.test-filter }} --coverage --coverage-clover storage/coverage/coverage_${{ matrix.test-filter }}.xml
