@@ -1,0 +1,44 @@
+name: Test
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+
+jobs:
+  tests:
+    runs-on: ubuntu-20.04
+    strategy:
+      matrix:
+        test-filter: [
+          AuthenticationTest
+        ]
+    env:
+      COMPOSER_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+          extensions: ssh2, openssl, dom, curl, libxml, mbstring, zip
+          tools: composer:v2
+          coverage: pcov
+
+      - name: Composer Install
+        run: composer install --no-interaction
+
+      - name: Create SQLite database
+        run: |
+          touch database/database.sqlite
+
+      - name: Migrate Database
+        run: php artisan migrate:fresh --env=testing
+
+      - name: Run test - ${{ matrix.test-filter }}
+        run: php artisan test --filter ${{ matrix.test-filter }} --coverage --coverage-clover storage/coverage/coverage_${{ matrix.test-filter }}.xml
