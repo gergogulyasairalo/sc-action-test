@@ -38,8 +38,6 @@ jobs:
         uses: actions/cache@v3
         with:
           path: ${{ steps.composer-cache.outputs.dir }}
-          # Use composer.json for key, if composer.lock is not committed.
-          # key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.json') }}
           key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
           restore-keys: ${{ runner.os }}-composer-
 
@@ -58,6 +56,28 @@ jobs:
 
       - name: Fix code coverage paths
         run: sed -i 's@'$GITHUB_WORKSPACE'@/github/workspace/@g' storage/coverage/coverage_${{ matrix.test-filter }}.xml
+
+      - name: Upload coverage data
+        uses: actions/upload-artifact@v3
+        with:
+          name: coverage_${{ matrix.test-filter }}
+          path: storage/coverage/coverage_${{ matrix.test-filter }}.xml
+          retention-days: 1
+
+
+  sonarcloud:
+    runs-on: ubuntu-20.04
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - name: Download coverages
+        uses: actions/download-artifact@v3
+        with:
+          name: 'coverage*'
+          pr: ${{github.event.pull_request.number}}
 
       - name: SonarCloud Scan
         uses: SonarSource/sonarcloud-github-action@master
