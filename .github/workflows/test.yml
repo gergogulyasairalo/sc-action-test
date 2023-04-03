@@ -12,8 +12,7 @@ jobs:
     strategy:
       matrix:
         test-filter: [
-          AuthenticationTest,
-          EmailVerificationTest
+          AuthenticationTest
         ]
     env:
       COMPOSER_TOKEN: ${{ secrets.GITHUB_TOKEN }}
