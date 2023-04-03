@@ -32,7 +32,11 @@ jobs:
       - name: Composer Install
         run: composer install --no-interaction
 
-      - name: Create Database
+      - name: Create SQLite database
+        run: |
+          touch database/database.sqlite
+
+      - name: Migrate Database
         run: php artisan migrate:fresh --env=testing
 
       - name: Run tests
