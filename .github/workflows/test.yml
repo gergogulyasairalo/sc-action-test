@@ -54,7 +54,7 @@ jobs:
         run: php artisan migrate:fresh --env=testing
 
       - name: Run test - ${{ matrix.module }}
-        run: php artisan test -c ${{ matrix.path }}phpunit.xml  --coverage --coverage-clover storage/coverage/coverage_${{ matrix.module }}.xml
+        run: php $GITHUB_WORKSPACE/artisan test -c phpunit.xml  --coverage --coverage-clover $GITHUB_WORKSPACE/storage/coverage/coverage_${{ matrix.module }}.xml
         working-directory: ${{ matrix.path }}
 
       - name: Fix code coverage paths
