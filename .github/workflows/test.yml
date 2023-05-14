@@ -76,6 +76,8 @@ jobs:
       - name: Download coverages
         uses: actions/download-artifact@v3
         id: download
+        with:
+          path: .coverage
 
       - name: Display structure of downloaded files
         run: ls -R
