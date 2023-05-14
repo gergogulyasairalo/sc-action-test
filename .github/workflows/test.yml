@@ -83,7 +83,7 @@ jobs:
       - name: Display structure of downloaded files
         run: ls -R
 
-      - name: 'Echo download path'
+      - name: Echo download path
         run: echo ${{steps.download.outputs.download-path}}
 
       - name: Getting report paths for SonarQube
@@ -93,7 +93,7 @@ jobs:
           coverage=$(find . -type f -name "coverage*.xml" | sed -e 's/^.\//build\/coverage\//' | tr '\n' ',')
           echo "coverageReportPaths=${coverage}" >> $GITHUB_ENV
 
-      - name: 'Echo coverageReportPaths env '
+      - name: Echo coverage report paths env
         run: echo ${{env.coverageReportPaths}}
 
       - name: SonarCloud Scan
@@ -101,6 +101,6 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-        with:
-          args: >
-            -Dsonar.php.coverage.reportPaths="${{env.coverageReportPaths}}"
+       # with:
+       #   args: >
+       #     -Dsonar.php.coverage.reportPaths="${{env.coverageReportPaths}}"
