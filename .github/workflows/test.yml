@@ -8,13 +8,15 @@ on:
 
 jobs:
   tests:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
     strategy:
+      max-parallel: 3
       matrix:
-        test-filter: [
-          AuthenticationTest,
-          EmailVerificationTest
-        ]
+        include:
+          - module: "Core"
+            path: null
+          - module: "Math"
+            path: "modules/Math/phpunit.xml"
     env:
       COMPOSER_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     steps:
@@ -51,22 +53,22 @@ jobs:
       - name: Migrate Database
         run: php artisan migrate:fresh --env=testing
 
-      - name: Run test - ${{ matrix.test-filter }}
-        run: php artisan test --filter ${{ matrix.test-filter }} --coverage --coverage-clover storage/coverage/coverage_${{ matrix.test-filter }}.xml
+      - name: Run test - ${{ matrix.name }}
+        run: php artisan test -c ${{ matrix.path || phpunit.xml }}  --coverage --coverage-clover storage/coverage/coverage_${{ matrix.name }}.xml
 
       - name: Fix code coverage paths
-        run: sed -i 's@'$GITHUB_WORKSPACE'@/github/workspace/@g' storage/coverage/coverage_${{ matrix.test-filter }}.xml
+        run: sed -i 's@'$GITHUB_WORKSPACE'@/github/workspace/@g' storage/coverage/coverage_${{ matrix.name }}.xml
 
       - name: Upload coverage data
         uses: actions/upload-artifact@v3
         with:
           name: coverage
-          path: storage/coverage/coverage_${{ matrix.test-filter }}.xml
+          path: storage/coverage/coverage_${{ matrix.name }}.xml
           retention-days: 1
 
 
   sonarcloud:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
     needs: [tests]
     steps:
       - name: Checkout
@@ -80,15 +82,11 @@ jobs:
         with:
           path: build
 
-      - name: Display structure of downloaded files
-        run: ls -R
-
       - name: Echo download path
         run: echo ${{steps.download.outputs.download-path}}
 
       - name: Getting report paths for SonarQube
         working-directory: ./build/coverage
-        # coverage=$(find . -type f -name "coverage*.xml" | tr '\n' ',')
         run: |
           coverage=$(find . -type f -name "coverage*.xml" | sed -e 's/^.\//build\/coverage\//' | tr '\n' ',')
           echo "coverageReportPaths=${coverage}" >> $GITHUB_ENV
