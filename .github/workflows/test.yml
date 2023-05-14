@@ -75,8 +75,13 @@ jobs:
 
       - name: Download coverages
         uses: actions/download-artifact@v3
-        with:
-          name: 'coverage*'
+        id: download
+
+      - name: Display structure of downloaded files
+        run: ls -R
+
+      - name: 'Echo download path'
+        run: echo ${{steps.download.outputs.download-path}}
 
       - name: SonarCloud Scan
         uses: SonarSource/sonarcloud-github-action@master
