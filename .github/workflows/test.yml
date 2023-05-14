@@ -14,9 +14,9 @@ jobs:
       matrix:
         include:
           - module: "Core"
-            path: "phpunit.xml"
+            path: ""
           - module: "Math"
-            path: "modules/Math/phpunit.xml"
+            path: "modules/Math/"
     env:
       COMPOSER_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     steps:
@@ -54,7 +54,8 @@ jobs:
         run: php artisan migrate:fresh --env=testing
 
       - name: Run test - ${{ matrix.module }}
-        run: php artisan test -c ${{ matrix.path }}  --coverage --coverage-clover storage/coverage/coverage_${{ matrix.module }}.xml
+        run: php $GITHUB_WORKSPACE/artisan test -c phpunit.xml  --coverage --coverage-clover $GITHUB_WORKSPACE/storage/coverage/coverage_${{ matrix.module }}.xml
+        working-directory: ${{ matrix.path }}
 
       - name: Fix code coverage paths
         run: sed -i 's@'$GITHUB_WORKSPACE'@/github/workspace/@g' storage/coverage/coverage_${{ matrix.module }}.xml
