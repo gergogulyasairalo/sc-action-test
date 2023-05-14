@@ -88,8 +88,9 @@ jobs:
 
       - name: Getting report paths for SonarQube
         working-directory: ./build/coverage
+        # coverage=$(find . -type f -name "coverage*.xml" | tr '\n' ',')
         run: |
-          coverage=$(find . -type f -name "coverage*.xml" | tr '\n' ',')
+          coverage=$(find . -type f -name "coverage*.xml" | sed -e 's/^/build\/coverage\//' | tr '\n' ',')
           echo "coverageReportPaths=${coverage}" >> $GITHUB_ENV
 
       - name: 'Echo coverageReportPaths env '
