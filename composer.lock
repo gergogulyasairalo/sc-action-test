@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "17ab74f6f2de29da07185a77a2718276",
+    "content-hash": "1bbbc5b7d6fbd505e06719e0a0f39d1d",
     "packages": [
         {
             "name": "brick/math",
@@ -2942,6 +2942,36 @@
                 }
             ],
             "time": "2023-01-12T18:13:24+00:00"
+        },
+        {
+            "name": "sctest/math",
+            "version": "1.0",
+            "dist": {
+                "type": "path",
+                "url": "modules/Math",
+                "reference": "a7dd2cb1b0d3e01bd7f5dd7ddbab810d096ae004"
+            },
+            "type": "library",
+            "extra": {
+                "laravel": {
+                    "providers": [
+                        "Modules\\Math\\ServiceProvider"
+                    ]
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Modules\\Math\\": "src/"
+                }
+            },
+            "autoload-dev": {
+                "psr-4": {
+                    "Modules\\Math\\Tests\\": "tests/"
+                }
+            },
+            "transport-options": {
+                "relative": true
+            }
         },
         {
             "name": "symfony/console",
@@ -8778,7 +8808,7 @@
     "prefer-stable": true,
     "prefer-lowest": false,
     "platform": {
-        "php": "^8.1"
+        "php": "^8.2"
     },
     "platform-dev": [],
     "plugin-api-version": "2.3.0"

@@ -1,0 +1,24 @@
+{
+    "name": "sctest/math",
+    "version": "1.0",
+    "type": "library",
+    "autoload": {
+        "psr-4": {
+            "Modules\\Math\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Modules\\Math\\Tests\\": "tests/"
+        }
+    },
+    "minimum-stability": "dev",
+    "prefer-stable": true,
+    "extra": {
+        "laravel": {
+            "providers": [
+                "Modules\\Math\\ServiceProvider"
+            ]
+        }
+    }
+}
