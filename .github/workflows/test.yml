@@ -103,4 +103,4 @@ jobs:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         with:
           args: >
-            -Dsonar.php.coverage.reportPaths="build/coverage/coverage_EmailVerificationTest.xml,build/coverage/coverage_AuthenticationTest.xml"
+            -Dsonar.php.coverage.reportPaths=build/coverage/coverage_EmailVerificationTest.xml,build/coverage/coverage_AuthenticationTest.xml
