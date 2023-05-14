@@ -92,7 +92,7 @@ jobs:
           coverage=$(find . -type f -name "coverage*.xml" | tr '\n' ',')
           echo "coverageReportPaths=${coverage}" >> $GITHUB_ENV
 
-      - name: 'Echo coverageReportPaths env'
+      - name: 'Echo coverageReportPaths env '
         run: echo ${{env.coverageReportPaths}}
 
       - name: SonarCloud Scan
@@ -100,5 +100,6 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-        args: >
-          -Dsonar.php.coverage.reportPaths="${{env.coverageReportPaths}}"
+        with:
+          args: >
+            -Dsonar.php.coverage.reportPaths="${{env.coverageReportPaths}}"
