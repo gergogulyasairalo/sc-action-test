@@ -86,8 +86,19 @@ jobs:
       - name: 'Echo download path'
         run: echo ${{steps.download.outputs.download-path}}
 
+      - name: Getting report paths for SonarQube
+        working-directory: ./build/coverage
+        run: |
+          coverage=$(find . -type f -name "coverage*.xml" | tr '\n' ',')
+          echo "coverage=${coverage}" >> $GITHUB_ENV
+
+      - name: 'Echo coverage env'
+        run: echo ${{env.coverage}}
+
       - name: SonarCloud Scan
         uses: SonarSource/sonarcloud-github-action@master
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+       # args: >
+       #   -Dsonar.php.coverage.reportPaths="${coverage}"
