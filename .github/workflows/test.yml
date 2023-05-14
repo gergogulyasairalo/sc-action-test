@@ -8,13 +8,15 @@ on:
 
 jobs:
   tests:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
     strategy:
+      max-parallel: 3
       matrix:
-        test-filter: [
-          AuthenticationTest,
-          EmailVerificationTest
-        ]
+        include:
+          - module: "Core"
+            path: "phpunit.xml"
+          - module: "Math"
+            path: "modules/Math/phpunit.xml"
     env:
       COMPOSER_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     steps:
@@ -38,8 +40,6 @@ jobs:
         uses: actions/cache@v3
         with:
           path: ${{ steps.composer-cache.outputs.dir }}
-          # Use composer.json for key, if composer.lock is not committed.
-          # key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.json') }}
           key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
           restore-keys: ${{ runner.os }}-composer-
 
@@ -53,5 +53,52 @@ jobs:
       - name: Migrate Database
         run: php artisan migrate:fresh --env=testing
 
-      - name: Run test - ${{ matrix.test-filter }}
-        run: php artisan test --filter ${{ matrix.test-filter }} --coverage --coverage-clover storage/coverage/coverage_${{ matrix.test-filter }}.xml
+      - name: Run test - ${{ matrix.module }}
+        run: php artisan test -c ${{ matrix.path }}  --coverage --coverage-clover storage/coverage/coverage_${{ matrix.module }}.xml
+
+      - name: Fix code coverage paths
+        run: sed -i 's@'$GITHUB_WORKSPACE'@/github/workspace/@g' storage/coverage/coverage_${{ matrix.module }}.xml
+
+      - name: Upload coverage data
+        uses: actions/upload-artifact@v3
+        with:
+          name: coverage
+          path: storage/coverage/coverage_${{ matrix.module }}.xml
+          retention-days: 1
+
+
+  sonarcloud:
+    runs-on: ubuntu-22.04
+    needs: [tests]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - name: Download coverages
+        uses: actions/download-artifact@v3
+        id: download
+        with:
+          path: build
+
+      - name: Echo download path
+        run: echo ${{steps.download.outputs.download-path}}
+
+      - name: Getting report paths for SonarQube
+        working-directory: ./build/coverage
+        run: |
+          coverage=$(find . -type f -name "coverage*.xml" | sed -e 's/^.\//build\/coverage\//' | tr '\n' ',')
+          echo "coverageReportPaths=${coverage}" >> $GITHUB_ENV
+
+      - name: Echo coverage report paths env
+        run: echo ${{env.coverageReportPaths}}
+
+      - name: SonarCloud Scan
+        uses: SonarSource/sonarcloud-github-action@master
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        with:
+          args: >
+            -Dsonar.php.coverage.reportPaths=${{env.coverageReportPaths}}
